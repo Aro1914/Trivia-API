@@ -6,14 +6,22 @@ class Question extends Component {
     super();
     this.state = {
       visibleAnswer: false,
+      originalCategories: [
+        'Science',
+        'Art',
+        'Geography',
+        'History',
+        'Entertainment',
+        'Sports'
+      ]
     };
   }
 
-  flipVisibility() {
+  flipVisibility () {
     this.setState({ visibleAnswer: !this.state.visibleAnswer });
   }
 
-  render() {
+  render () {
     const { question, answer, category, difficulty } = this.props;
     return (
       <div className='Question-holder'>
@@ -22,7 +30,7 @@ class Question extends Component {
           <img
             className='category'
             alt={`${category.toLowerCase()}`}
-            src={`${category.toLowerCase()}.svg`}
+            src={`${this.state.originalCategories.some(el => el === category) ? category.toLowerCase() : 'new'}.svg`}
           />
           <div className='difficulty'>Difficulty: {difficulty}</div>
           <img

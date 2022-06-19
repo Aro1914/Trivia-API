@@ -3,6 +3,7 @@ import $ from 'jquery';
 import '../stylesheets/QuizView.css';
 
 const questionsPerPlay = 5;
+const base_url = '/api/v0.1.0';
 
 class QuizView extends Component {
   constructor(props) {
@@ -19,9 +20,9 @@ class QuizView extends Component {
     };
   }
 
-  componentDidMount() {
+  componentDidMount () {
     $.ajax({
-      url: `/categories`, //TODO: update request URL
+      url: `${base_url}/categories?quiz=true`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({ categories: result.categories });
@@ -49,7 +50,7 @@ class QuizView extends Component {
     }
 
     $.ajax({
-      url: '/quizzes', //TODO: update request URL
+      url: `${base_url}/quizzes`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -67,7 +68,7 @@ class QuizView extends Component {
           previousQuestions: previousQuestions,
           currentQuestion: result.question,
           guess: '',
-          forceEnd: result.question ? false : true,
+          forceEnd: Object.keys(result.question).length ? false : true,
         });
         return;
       },
@@ -99,7 +100,7 @@ class QuizView extends Component {
     });
   };
 
-  renderPrePlay() {
+  renderPrePlay () {
     return (
       <div className='quiz-play-holder'>
         <div className='choose-header'>Choose Category</div>
@@ -126,7 +127,7 @@ class QuizView extends Component {
     );
   }
 
-  renderFinalScore() {
+  renderFinalScore () {
     return (
       <div className='quiz-play-holder'>
         <div className='final-header'>
@@ -150,7 +151,7 @@ class QuizView extends Component {
     return answerArray.every((el) => formatGuess.includes(el));
   };
 
-  renderCorrectAnswer() {
+  renderCorrectAnswer () {
     let evaluate = this.evaluateAnswer();
     return (
       <div className='quiz-play-holder'>
@@ -169,7 +170,7 @@ class QuizView extends Component {
     );
   }
 
-  renderPlay() {
+  renderPlay () {
     return this.state.previousQuestions.length === questionsPerPlay ||
       this.state.forceEnd ? (
       this.renderFinalScore()
@@ -192,7 +193,7 @@ class QuizView extends Component {
     );
   }
 
-  render() {
+  render () {
     return this.state.quizCategory ? this.renderPlay() : this.renderPrePlay();
   }
 }
