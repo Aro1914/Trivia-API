@@ -226,6 +226,31 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(parameters['category'], question['category'])
         self.assertEqual(parameters['difficulty'], question['difficulty'])
 
+    def test_404_returned_on_out_of_bounds_category_id_on_get_questions_by_category_request(self):
+        max_id = Category.query.count()
+        category_id = random.randrange(max_id+1, 1001)
+        res = self.client().get(
+            f'{BASE_URL}/categories/{category_id}/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], "resource not found")
+
+    def test_200_returned_on_valid_category_id_on_get_questions_by_category_request(self):
+        max_id = Category.query.count()
+        category_id = random.randrange(1, max_id+1)
+        res = self.client().get(
+            f'{BASE_URL}/categories/{category_id}/questions')
+        data = json.loads(res.data)
+        category = Category.query.get(category_id).format()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(data['questions']))
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(data['current_category'], category['type'])
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
