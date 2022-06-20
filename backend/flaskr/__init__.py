@@ -50,18 +50,18 @@ def get_paginated_questions(page=1, q_per_page=QUESTIONS_PER_PAGE, search_term=N
 def get_categories(for_quiz=False):
     categories = Category.query.order_by(Category.id).all()
 
-    return_categories = {}
+    formatted_categories = {}
 
     for category in categories:
         if for_quiz:
             if get_paginated_questions(category_id=category.format()['id']) is not None:
-                return_categories[str(category.format()['id'])] = category.format()[
+                formatted_categories[str(category.format()['id'])] = category.format()[
                     'type']
         else:
-            return_categories[str(category.format()['id'])] = category.format()[
+            formatted_categories[str(category.format()['id'])] = category.format()[
                 'type']
 
-    return return_categories
+    return formatted_categories
 
 
 def create_app(test_config=None):
@@ -110,9 +110,10 @@ def create_app(test_config=None):
             try:
                 incoming_category = request.get_json()['category']
                 if incoming_category == '':
+                    set_error_code(422)
                     raise
             except:
-                set_error_code(400)
+                set_error_code(409)
                 raise
 
             category = Category.query.filter(
@@ -123,7 +124,9 @@ def create_app(test_config=None):
                 new_category.insert()
 
                 return jsonify({
+                    "status_code": 201,
                     "success": True,
+                    "message": "created"
                 })
             else:
                 set_error_code(403)
@@ -187,7 +190,7 @@ def create_app(test_config=None):
 
     @app.route(f'{BASE_URL}/questions', methods=['POST'])
     def create_or_search_questions():
-        if request.get_json() and "searchTerm" in request.get_json():
+        if request.get_json() and "search_term" in request.get_json():
             """
             @TODO:
             Create a POST endpoint to get questions based on a search term.
@@ -198,12 +201,12 @@ def create_app(test_config=None):
             only question that include that string within their question.
             Try using the word "title" to start.
             """
-            if request.get_json()["searchTerm"] == '':
+            if request.get_json()["search_term"] == '':
                 abort(422)
             try:
-                search_term = request.get_json()["searchTerm"]
+                search_term = request.get_json()["search_term"]
                 questions = get_paginated_questions(
-                    search_term=search_term, q_per_page=1000)
+                    search_term=search_term)
 
                 if not questions:
                     raise
@@ -216,7 +219,7 @@ def create_app(test_config=None):
                     "success": True,
                     "questions": return_questions,
                     "total_questions": question_count,
-                    "current_category": "All"
+                    "current_category": None
                 })
             except:
                 abort(404)
@@ -247,7 +250,9 @@ def create_app(test_config=None):
                 new_question.insert()
 
                 return jsonify({
+                    "status_code": 201,
                     "success": True,
+                    "message": "created"
                 })
             except:
                 abort(400)
@@ -263,7 +268,9 @@ def create_app(test_config=None):
     @app.route(f'{BASE_URL}/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):
         try:
-            questions = get_paginated_questions(category_id=category_id)
+            page = request.args.get('page', 1, type=int)
+            questions = get_paginated_questions(
+                category_id=category_id, page=page)
 
             if not questions:
                 raise
@@ -276,7 +283,7 @@ def create_app(test_config=None):
                 "success": True,
                 "questions": return_questions,
                 "total_questions": question_count,
-                "current_category": Category.query.get(category_id).format()['type']
+                "current_category": Category.query.get(category_id).format()['id']
             })
         except:
             abort(404)
@@ -294,17 +301,25 @@ def create_app(test_config=None):
     """
     @app.route(f'{BASE_URL}/quizzes', methods=['POST'])
     def load_quiz():
+        set_error_code(500)
         try:
-            category_id = request.get_json()['quiz_category']['id']
-            previous_questions = request.get_json()['previous_questions']
+            try:
+                category_id = request.get_json()['quiz_category']['id']
+                previous_questions = request.get_json()['previous_questions']
+            except:
+                set_error_code(400)
+                raise
 
             questions = get_paginated_questions(category_id=category_id)
+
+            if not questions:
+                set_error_code(404)
+                raise
 
             queue = []
             for question in [question.format() for question in questions]:
                 if not question['id'] in previous_questions:
                     queue.append(question)
-
             return_question = {}
             upper_range = len(queue)
             if upper_range > 0:
@@ -315,39 +330,13 @@ def create_app(test_config=None):
                 "question": return_question,
             })
         except:
-            abort(500)
+            abort(get_error_code())
 
     """
     @TODO:
     Create error handlers for all expected errors
     including 404 and 422.
     """
-    @app.errorhandler(404)
-    def not_found(error):
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": 404,
-                    "message": "resource not found",
-                }
-            ),
-            404,
-        )
-
-    @app.errorhandler(422)
-    def unprocessable(error):
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": 422,
-                    "message": "unprocessable",
-                }
-            ),
-            422,
-        )
-
     @app.errorhandler(400)
     def bad_request(error):
         return (
@@ -359,6 +348,32 @@ def create_app(test_config=None):
                 }
             ),
             400,
+        )
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": 403,
+                    "message": "forbidden"
+                }
+            ),
+            403,
+        )
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": 404,
+                    "message": "resource not found",
+                }
+            ),
+            404,
         )
 
     @app.errorhandler(405)
@@ -374,6 +389,32 @@ def create_app(test_config=None):
             405,
         )
 
+    @app.errorhandler(409)
+    def conflict(error):
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": 409,
+                    "message": "conflict",
+                }
+            ),
+            409,
+        )
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": 422,
+                    "message": "unprocessable",
+                }
+            ),
+            422,
+        )
+
     @app.errorhandler(500)
     def internal_server_error(error):
         return (
@@ -385,19 +426,6 @@ def create_app(test_config=None):
                 }
             ),
             500,
-        )
-
-    @app.errorhandler(403)
-    def forbidden(error):
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "error": 403,
-                    "message": "forbidden"
-                }
-            ),
-            403,
         )
 
     return app

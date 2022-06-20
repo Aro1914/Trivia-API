@@ -15,7 +15,8 @@ class QuestionView extends Component {
       totalQuestions: 0,
       categories: {},
       currentCategory: null,
-      showPagination: true,
+      onSearch: false,
+      searchTerm: ''
     };
   }
 
@@ -44,7 +45,7 @@ class QuestionView extends Component {
   };
 
   selectPage (num) {
-    this.setState({ page: num }, () => this.getQuestions());
+    this.setState({ page: num }, () => !this.state.onSearch ? !this.state.currentCategory ? this.getQuestions() : this.getByCategory(this.state.currentCategory) : this.submitSearch(this.state.searchTerm));
   }
 
   createPagination () {
@@ -68,13 +69,14 @@ class QuestionView extends Component {
 
   getByCategory = (id) => {
     $.ajax({
-      url: `${base_url}/categories/${id}/questions`, //TODO: update request URL
+      url: `${base_url}/categories/${id}/questions?page=${this.state.page}`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
           currentCategory: result.current_category,
+          onSearch: false
         });
         return;
       },
@@ -85,13 +87,13 @@ class QuestionView extends Component {
     });
   };
 
-  submitSearch = (searchTerm) => {
+  submitSearch = (searchTerm, page = 1) => {
     $.ajax({
-      url: `${base_url}/questions`, //TODO: update request URL
+      url: `${base_url}/questions?page=${page}`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({ searchTerm: searchTerm }),
+      data: JSON.stringify({ search_term: searchTerm }),
       xhrFields: {
         withCredentials: true,
       },
@@ -101,7 +103,8 @@ class QuestionView extends Component {
           questions: result.questions,
           totalQuestions: result.total_questions,
           currentCategory: result.current_category,
-          showPagination: false
+          onSearch: true,
+          searchTerm: searchTerm
         });
         return;
       },
@@ -176,8 +179,7 @@ class QuestionView extends Component {
               questionAction={this.questionAction(q.id)}
             />
           ))}
-          {this.state.showPagination &&
-            <div className='pagination-menu'>{this.createPagination()}</div>}
+          <div className='pagination-menu'>{this.createPagination()}</div>
         </div>
       </div>
     );
