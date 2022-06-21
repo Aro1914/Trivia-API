@@ -128,7 +128,7 @@ def create_app(test_config=None):
                     "message": "created"
                 }), 201)
             else:
-                set_error_code(403)
+                set_error_code(409)
                 raise
         except:
             abort(get_error_code())
@@ -244,7 +244,11 @@ def create_app(test_config=None):
                     raise
 
                 new_question = Question(
-                    question=question, answer=answer, category=category, difficulty=difficulty)
+                    question=question,
+                    answer=answer,
+                    category=category,
+                    difficulty=difficulty
+                )
                 new_question.insert()
 
                 return (jsonify({
@@ -301,24 +305,26 @@ def create_app(test_config=None):
         set_error_code(500)
         try:
             try:
+                # Confirm that the request has the right parameters then assign it to variables
                 category_id = request.get_json()['quiz_category']['id']
                 previous_questions = request.get_json()['previous_questions']
             except:
                 set_error_code(400)
                 raise
-
+            # Attempt to retrieve questions based on the category id provided
             questions = get_paginated_questions(category_id=category_id)
-
+            # If retrieval was unsuccessful return a resource not found error message
             if not questions:
                 set_error_code(404)
                 raise
-
+            # Create a queue to hold all the questions whose id is not present in the previous questions entity
             queue = []
             for question in [question.format() for question in questions]:
                 if not question['id'] in previous_questions:
                     queue.append(question)
             return_question = {}
             upper_range = len(queue)
+            # Select a random question to return to the client
             if upper_range > 0:
                 return_question = queue[math.floor(
                     random.randrange(0, upper_range))]

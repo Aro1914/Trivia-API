@@ -4,14 +4,22 @@
 
 ### Install Dependencies
 
-1. **Python 3.7** - Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
+1. **Python 3.10** - Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
 
-2. **Virtual Environment** - We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organized. Instructions for setting up a virual environment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+2. **Virtual Environment** - I recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organized. Instructions for setting up a virual environment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
 
 3. **PIP Dependencies** - Once your virtual environment is setup and running, install the required dependencies by navigating to the `/backend` directory and running:
 
+For Windows Users
+
 ```bash
-pip install -r requirements.txt
+${path_to_your_virtual_environment}/Scripts/python.exe -m pip install -r requirements.txt
+```
+
+For Unix Users
+
+```bash
+${path_to_your_virtual_environment}/bin/python -m pip install -r requirements.txt
 ```
 
 #### Key Pip Dependencies
@@ -26,56 +34,56 @@ pip install -r requirements.txt
 
 With Postgres running, create a `trivia` database:
 
+For Unix Users
+
 ```bash
-createbd trivia
+createdb trivia
+```
+
+For Windows Users
+Enter your psql tool environment as root user and run the following command
+
+```shell
+root_database=# CREATE DATABASE  trivia;
 ```
 
 Populate the database using the `trivia.psql` file provided. From the `backend` folder in terminal run:
+
+For Unix Users
 
 ```bash
 psql trivia < trivia.psql
 ```
 
+For Windows Users
+Enter your psql tool environment as root user and enter your trivia database then run the following command
+
+```shell
+trivia=# \i trivia.psql;
+```
+
 ### Run the Server
 
-From within the `./src` directory first ensure you are working using your created virtual environment.
+From within the `./backend` directory first ensure you are working using your created virtual environment.
 
 To run the server, execute:
 
 ```bash
-flask run --reload
+export FLASK_APP=flaskr
+export FLASK_ENV=development
+flask run
 ```
 
-The `--reload` flag will detect file changes and restart the server automatically.
+Once you have your server running, you can go start up your frontend to work with the backend server.
 
-## To Do Tasks
+## Api EndPoints
 
-These are the files you'd want to edit in the backend:
+### Get Categories
 
-1. `backend/flaskr/__init__.py`
-2. `backend/test_flaskr.py`
+`GET '/api/v0.1.0/categories'`
 
-One note before you delve into your tasks: for each endpoint, you are expected to define the endpoint and response data. The frontend will be a plentiful resource because it is set up to expect certain endpoints and response data formats already. You should feel free to specify endpoints in your own way; if you do so, make sure to update the frontend or you will get some unexpected behavior.
+Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 
-1. Use Flask-CORS to enable cross-domain requests and set response headers.
-2. Create an endpoint to handle `GET` requests for questions, including pagination (every 10 questions). This endpoint should return a list of questions, number of total questions, current category, categories.
-3. Create an endpoint to handle `GET` requests for all available categories.
-4. Create an endpoint to `DELETE` a question using a question `ID`.
-5. Create an endpoint to `POST` a new question, which will require the question and answer text, category, and difficulty score.
-6. Create a `POST` endpoint to get questions based on category.
-7. Create a `POST` endpoint to get questions based on a search term. It should return any questions for whom the search term is a substring of the question.
-8. Create a `POST` endpoint to get questions to play the quiz. This endpoint should take a category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions.
-9. Create error handlers for all expected errors including 400, 404, 422, and 500.
-
-## Documenting your Endpoints
-
-You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
-
-### Documentation Example
-
-`GET '/api/v1.0/categories'`
-
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs.
 
@@ -90,15 +98,153 @@ You will need to provide detailed documentation of your API endpoints including 
 }
 ```
 
-## Testing
+### Create a new Categories
 
-Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.
+`POST '/api/v0.1.0/categories'`
 
-To deploy the tests, run
+Creates a new category with the name specified in the category property of the body request
 
-```bash
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
+- Request Arguments: None
+- Request Body Properties: category- type string
+- Returns: A success value and message.
+
+```json
+{
+  "status_code": 201,
+  "success": true,
+  "message": "created"
+}
+```
+
+### Get Questions
+
+`GET '/api/v0.1.0/questions'`
+
+Fetches a list of dictionaries with the questions information, including the list of categories, a count of all the questions returned, and the current category.
+
+- Request Arguments: page- type int
+- Returns: An object with five keys:
+  - `success` that contains a boolean value
+  - `questions` that contains an array of objects
+  - `total_questions` that contains an integer
+  - `categories` that contains an object that contains objects
+  - `current_category` that contains a null value.
+
+```json
+{
+  "success": true,
+  "questions": [],
+  "total_questions": 0,
+  "categories": {},
+  "current_category": null
+}
+```
+
+### Delete Question
+
+`DELETE '/api/v0.1.0/questions/<int:id>'`
+
+Deletes a question
+
+- Request Arguments: None
+- Returns: A success value and the deleted question id.
+
+```json
+{
+  "success": true,
+  "deleted_id": 0,
+}
+```
+
+### Search Questions
+
+`POST '/api/v0.1.0/questions'`
+
+Fetches a list of dictionaries with the questions information that match the search value, a count of all the questions returned, and the current category.
+
+- Request Arguments: page- type int
+- Request Body Properties: search_term- type string
+- Returns: An object with five keys:
+  - `success` that contains a boolean value
+  - `questions` that contains an array of objects
+  - `total_questions` that contains an integer
+  - `current_category` that contains a null value.
+
+```json
+{
+  "success": true,
+  "questions": [],
+  "total_questions": 0,
+  "current_category": null
+}
+```
+
+### Create a new Question
+
+`POST '/api/v0.1.0/questions'`
+
+Creates a new question
+
+- Request Arguments: None
+- Request Body Properties:
+  - `question` that contains a string value
+  - `answer` that contains a string value
+  - `category` that contains an integer value of the category id
+  - `difficulty` that contains an integer value of the difficulty level
+- Returns: An object with five keys:
+  - `success` that contains a boolean value
+  - `questions` that contains an array of objects
+  - `total_questions` that contains an integer
+  - `current_category` that contains a null value.
+  
+```json
+{
+  "status_code": 201,
+  "success": true,
+  "message": "created"
+}
+```
+
+### Get Questions by Category
+
+`POST '/api/v0.1.0/categories/<int:category_id>/questions'`
+
+Fetches a list of dictionaries with the questions information with a category id that matches what the one being requested for, a count of all the questions returned, and the current category.
+
+- Request Arguments: page- type int
+- Request Body Properties: search_term- type string
+- Returns: An object with five keys:
+  - `success` that contains a boolean value
+  - `questions` that contains an array of objects
+  - `total_questions` that contains an integer
+  - `current_category` that contains a null value.
+
+```json
+{
+  "success": true,
+  "questions": [],
+  "total_questions": 0,
+  "current_category": 0
+}
+```
+
+### Load Quiz Question
+
+`POST '/api/v0.1.0/quizzes'`
+
+Fetches a single question for the quiz on the condition that the question's id does not already exist among the previous questions' ids coming from the client.
+
+- Request Arguments: None
+- Request Body Properties:
+  - `quiz_category` that contains an object an `id` key that contains an integer indicating the category of the question to be returned
+  - `previous_questions` that contains a list ids of the previous questions accepted by the client
+- Returns: An object with two keys:
+  - `success` that contains a boolean value
+  - `question` that contains an object with the returned question information
+
+```json
+{
+  "success": true,
+  "question": {},
+}
 ```

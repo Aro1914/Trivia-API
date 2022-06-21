@@ -10,7 +10,7 @@ import math
 import random
 
 BASE_URL = '/api/v0.1.0'
-QUESTIONS_PER_PAGE = 10
+QUESTIONS_PER_PAGE = 2
 
 
 def get_questions_by_category_id(category_id):
@@ -77,20 +77,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable')
 
-    # def test_201_returned_on_valid_post_categories_request(self):
-    #     ''' Test to confirm that a category is added successfully on passing the required parameters for the request
-    #     Note: the value of the category variable must be changed just before a test, else a 409 error is returned indicating that the category already exists and as such, the provided category conflicts with an existing one
-    #     '''
-    #     category = "Test Category"
-    #     res = self.client().post(
-    #         f'{BASE_URL}/categories', json={"category": category})
-    #     data = json.loads(res.data)
-    #     new_category = Category.query.order_by(Category.id.desc()).first()
+    def test_valid_post_categories_request(self):
+        ''' Test to confirm that a category is added successfully on passing the required parameters for the request if not a valid response was returned to indicate the cause
+        Note: the value of the category variable must be changed just before a test, else a 409 error is returned indicating that the category already exists and as such, the provided category conflicts with an existing one
+        '''
+        category = "Test Category"
+        res = self.client().post(
+            f'{BASE_URL}/categories', json={"category": category})
+        data = json.loads(res.data)
+        new_category = Category.query.order_by(Category.id.desc()).first()
 
-    #     self.assertEqual(res.status_code, 201)
-    #     self.assertEqual(data['message'], "created")
-    #     self.assertEqual(data['success'], True)
-    #     self.assertEqual(category, new_category.format()['type'])
+        if data['success']:
+            self.assertEqual(res.status_code, 201)
+            self.assertEqual(data['message'], "created")
+            self.assertEqual(data['success'], True)
+            self.assertEqual(category, new_category.format()['type'])
+        else:
+            self.assertEqual(res.status_code, 409)
+            self.assertEqual(data['success'], False)
+            self.assertEqual(data['message'], 'conflict')
 
     def test_get_questions(self):
         ''' Test to confirm the list of questions was returned successfully '''
@@ -205,6 +210,7 @@ class TriviaTestCase(unittest.TestCase):
         lower_range = random.randrange(0, math.floor(question_length/2))
         upper_range = random.randrange(math.floor(
             question_length/2) + 1, question_length)
+        # The search term is a slice of a random question in the database
         search_term = question.format()['question'][lower_range:upper_range]
 
         res = self.client().post(
@@ -220,7 +226,12 @@ class TriviaTestCase(unittest.TestCase):
     def test_400_returned_on_invalid_question_create_post_request(self):
         ''' Test to confirm that the valid response was returned on passing passing invalid parameters for the post question request '''
         res = self.client().post(
-            f'{BASE_URL}/questions', json={"question": "", "answer": "", "category": 0, "difficulty": 0})
+            f'{BASE_URL}/questions', json={
+                "question": "",
+                "answer": "",
+                "category": 0,
+                "difficulty": 0
+            })
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
@@ -230,7 +241,11 @@ class TriviaTestCase(unittest.TestCase):
     def test_201_returned_on_valid_question_create_post_request(self):
         ''' Test to confirm that the valid response was returned on successful post question request '''
         parameters = {
-            "question": "What side effect does dynamic phototherapy have on a patient's vision?", "answer": "Night vision", "category": 1, "difficulty": 5}
+            "question": "What side effect does dynamic phototherapy have on a patient's vision?",
+            "answer": "Night vision",
+            "category": 1,
+            "difficulty": 5
+        }
         res = self.client().post(f'{BASE_URL}/questions', json=parameters)
         data = json.loads(res.data)
         question = Question.query.order_by(Question.id.desc()).first().format()
@@ -311,9 +326,11 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_200_returned_on_valid_get_quizzes_request(self):
         ''' Test to confirm that a matching the rules of the quiz was returned successfully '''
+        # Retrieve all available categories
         categories = Category.query.order_by(Category.id).all()
 
         returned_categories = {}
+        # Save all categories that have questions assigned to them
         for category in categories:
             if get_questions_by_category_id(category_id=category.format()['id']):
                 returned_categories[str(category.format()['id'])] = category.format()[
