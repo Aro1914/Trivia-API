@@ -24,16 +24,16 @@ class QuestionView extends Component {
     this.getQuestions();
   }
 
-  getQuestions = () => {
+  getQuestions = (page = 1) => {
     $.ajax({
-      url: `${base_url}/questions?page=${this.state.page}`, //TODO: update request URL
+      url: `${base_url}/questions?page=${page}`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
           categories: result.categories,
-          currentCategory: result.current_category,
+          page: page
         });
         return;
       },
@@ -45,12 +45,23 @@ class QuestionView extends Component {
   };
 
   selectPage (num) {
-    this.setState({ page: num }, () => !this.state.onSearch ? !this.state.currentCategory ? this.getQuestions() : this.getByCategory(this.state.currentCategory) : this.submitSearch(this.state.searchTerm));
+    this.setState({ page: num }, () => {
+      if (!this.state.onSearch) {
+        if (!this.state.currentCategory) {
+          this.getQuestions(this.state.page);
+        } else {
+          this.getByCategory(this.state.currentCategory, this.state.page);
+        }
+      }
+      else {
+        this.submitSearch(this.state.searchTerm, this.state.page);
+      };
+    });
   }
 
   createPagination () {
     let pageNumbers = [];
-    let maxPage = Math.ceil(this.state.totalQuestions / 10);
+    let maxPage = Math.ceil(this.state.totalQuestions / 2);
     for (let i = 1; i <= maxPage; i++) {
       pageNumbers.push(
         <span
@@ -67,16 +78,17 @@ class QuestionView extends Component {
     return pageNumbers;
   }
 
-  getByCategory = (id) => {
+  getByCategory = (id, page = 1) => {
     $.ajax({
-      url: `${base_url}/categories/${id}/questions?page=${this.state.page}`, //TODO: update request URL
+      url: `${base_url}/categories/${id}/questions?page=${page}`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
           currentCategory: result.current_category,
-          onSearch: false
+          onSearch: false,
+          page: page
         });
         return;
       },
@@ -104,7 +116,8 @@ class QuestionView extends Component {
           totalQuestions: result.total_questions,
           currentCategory: result.current_category,
           onSearch: true,
-          searchTerm: searchTerm
+          searchTerm: searchTerm,
+          page: page
         });
         return;
       },
@@ -149,6 +162,11 @@ class QuestionView extends Component {
             Categories
           </h2>
           <ul>
+            <li
+              onClick={() => { this.getQuestions(1); }}
+            >
+              All
+            </li>
             {Object.keys(this.state.categories).map((id) => (
               <li
                 key={id}

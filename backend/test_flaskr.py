@@ -67,15 +67,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'bad request')
 
-    def test_400_returned_on_empty_category_post_categories_request(self):
+    def test_422_returned_on_empty_category_post_categories_request(self):
         ''' Test to confirm that the valid response was returned on passing invalid parameters for the post categories request '''
         res = self.client().post(
             f'{BASE_URL}/categories', json={"category": ""})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'bad request')
+        self.assertEqual(data['message'], 'unprocessable')
 
     # def test_201_returned_on_valid_post_categories_request(self):
     #     ''' Test to confirm that a category is added successfully on passing the required parameters for the request
@@ -99,7 +99,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['current_category'], "All")
+        self.assertEqual(data['current_category'], None)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['categories']))
@@ -126,7 +126,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['current_category'], "All")
+        self.assertEqual(data['current_category'], None)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['categories']))
@@ -213,7 +213,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['current_category'], "All")
+        self.assertEqual(data['current_category'], None)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
 
@@ -277,7 +277,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
-        self.assertEqual(data['current_category'], category['type'])
+        self.assertEqual(data['current_category'], category['id'])
 
     def test_404_returned_on_invalid_get_quizzes_request(self):
         ''' Test to confirm that the valid response was returned when no result could be returned for the get quizzes request '''

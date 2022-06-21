@@ -8,10 +8,10 @@ import random
 
 from models import setup_db, Question, Category
 
-QUESTIONS_PER_PAGE = 10
+QUESTIONS_PER_PAGE = 2
 BASE_URL = '/api/v0.1.0'
-question_count = 0
 error = 0
+question_length = 0
 
 
 def set_error_code(code):
@@ -113,7 +113,6 @@ def create_app(test_config=None):
                     set_error_code(422)
                     raise
             except:
-                set_error_code(409)
                 raise
 
             category = Category.query.filter(
@@ -123,11 +122,11 @@ def create_app(test_config=None):
                 new_category = Category(type=request.get_json()['category'])
                 new_category.insert()
 
-                return jsonify({
+                return (jsonify({
                     "status_code": 201,
                     "success": True,
                     "message": "created"
-                })
+                }), 201)
             else:
                 set_error_code(403)
                 raise
@@ -158,13 +157,12 @@ def create_app(test_config=None):
             return_questions = []
             for question in questions:
                 return_questions.append(question.format())
-
             return jsonify({
                 "success": True,
                 "questions": return_questions,
                 "total_questions": question_count,
                 "categories": get_categories(),
-                "current_category": "All"
+                "current_category": None
             })
         except:
             abort(404)
@@ -205,8 +203,9 @@ def create_app(test_config=None):
                 abort(422)
             try:
                 search_term = request.get_json()["search_term"]
+                page = request.args.get('page', 1, type=int)
                 questions = get_paginated_questions(
-                    search_term=search_term)
+                    search_term=search_term, page=page)
 
                 if not questions:
                     raise
@@ -214,7 +213,6 @@ def create_app(test_config=None):
                 return_questions = []
                 for question in questions:
                     return_questions.append(question.format())
-
                 return jsonify({
                     "success": True,
                     "questions": return_questions,
@@ -249,11 +247,11 @@ def create_app(test_config=None):
                     question=question, answer=answer, category=category, difficulty=difficulty)
                 new_question.insert()
 
-                return jsonify({
+                return (jsonify({
                     "status_code": 201,
                     "success": True,
                     "message": "created"
-                })
+                }), 201)
             except:
                 abort(400)
 
@@ -278,7 +276,6 @@ def create_app(test_config=None):
             return_questions = []
             for question in questions:
                 return_questions.append(question.format())
-
             return jsonify({
                 "success": True,
                 "questions": return_questions,
