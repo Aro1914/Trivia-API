@@ -239,6 +239,7 @@ def create_app(test_config=None):
                 answer = data['answer']
                 category = int(data['category'])
                 difficulty = int(data['difficulty'])
+                rating = int(data['rating'])
 
                 if not (question and answer and category and difficulty):
                     raise
@@ -247,7 +248,8 @@ def create_app(test_config=None):
                     question=question,
                     answer=answer,
                     category=category,
-                    difficulty=difficulty
+                    difficulty=difficulty,
+                    rating=rating
                 )
                 new_question.insert()
 
@@ -258,6 +260,18 @@ def create_app(test_config=None):
                 }), 201)
             except:
                 abort(400)
+
+    @app.route(f'{BASE_URL}/questions/<int:id>', methods=['PATCH'])
+    def update_rating(id):
+        try:
+            question = Question.query.get(id)
+            question.rating = int(request.get_json()['rating'])
+            question.update()
+            return jsonify({
+                "success": True
+            })
+        except:
+            abort(500)
 
     """
     @TODO:

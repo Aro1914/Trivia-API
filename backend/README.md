@@ -82,9 +82,9 @@ Once you have your server running, you can go start up your frontend to work wit
 
 `GET '/api/v0.1.0/categories'`
 
-Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category. If the request argument quiz is set to `true`, then only categories that have questions assigned to them are returned, else by default all categories are returned.
 
-- Request Arguments: None
+- Request Arguments: quiz- type boolean, default false
 - Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs.
 
 ```json

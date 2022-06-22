@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import json
 from settings import DATABASE_NAME, DATABASE_PORT, DATABASE_OWNER, DATABASE_PASSWORD
 
@@ -20,6 +21,7 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
+    # migrate = Migrate(app, db)
     db.create_all()
 
 
@@ -37,12 +39,14 @@ class Question(db.Model):
     answer = Column(String)
     category = Column(String)
     difficulty = Column(Integer)
+    rating = Column(Integer, default=3)
 
-    def __init__(self, question, answer, category, difficulty):
+    def __init__(self, question, answer, category, difficulty, rating):
         self.question = question
         self.answer = answer
         self.category = category
         self.difficulty = difficulty
+        self.rating = rating
 
     def insert(self):
         db.session.add(self)
@@ -61,7 +65,8 @@ class Question(db.Model):
             'question': self.question,
             'answer': self.answer,
             'category': self.category,
-            'difficulty': self.difficulty
+            'difficulty': self.difficulty,
+            'rating': self.rating
         }
 
 
