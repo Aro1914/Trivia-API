@@ -376,6 +376,11 @@ class TriviaTestCase(unittest.TestCase):
         else:
             self.assertEqual(len(data['question']), 0)
 
+    def test_200_returned_valid_update_rating_request(self):
+        ''' Test to confirm that a questions rating was successfully updated '''
+        question = Question.query.first().format()
+        initial_rating = question['rating']
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

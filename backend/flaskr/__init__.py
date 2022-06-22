@@ -6,7 +6,7 @@ import random
 import math
 import random
 
-from models import setup_db, Question, Category
+from models import setup_db, Question, Category, User
 
 QUESTIONS_PER_PAGE = 2
 BASE_URL = '/api/v0.1.0'
@@ -325,27 +325,81 @@ def create_app(test_config=None):
             except:
                 set_error_code(400)
                 raise
+
+            # Guard to return an empty dictionary if the amount of questions already attempted is equal to the amount of questions available for that category, or more than, due to an error in the client's request
+            if not category_id == 0 and Question.query.filter(Question.category == category_id).count() <= len(previous_questions):
+                return jsonify({
+                    "success": True,
+                    "question": {},
+                })
+
             # Attempt to retrieve questions based on the category id provided
-            questions = get_paginated_questions(category_id=category_id)
-            # If retrieval was unsuccessful return a resource not found error message
-            if not questions:
-                set_error_code(404)
-                raise
-            # Create a queue to hold all the questions whose id is not present in the previous questions entity
-            queue = []
-            for question in [question.format() for question in questions]:
-                if not question['id'] in previous_questions:
-                    queue.append(question)
-            return_question = {}
-            upper_range = len(queue)
-            # Select a random question to return to the client
-            if upper_range > 0:
-                return_question = queue[math.floor(
-                    random.randrange(0, upper_range))]
+            upper_range = Question.query.order_by(
+                Question.id.desc()).first().format()['id'] + 1
+
+            q = None
+            while q is None or q.format()['id'] in previous_questions:
+                rand_id = random.randrange(1, upper_range)
+                q = Question.query.get(rand_id) if category_id == 0 else Question.query.filter(
+                    Question.id == rand_id, Question.category == category_id).first()
+
             return jsonify({
                 "success": True,
-                "question": return_question,
+                "question": q.format(),
             })
+        except:
+            abort(get_error_code())
+
+    @app.route(f'{BASE_URL}/users')
+    def get_users():
+        try:
+            users = User.query.order_by(User.id).all()
+            return_users = [user.format() for user in users]
+
+            return jsonify({
+                "success": True,
+                "users": return_users
+            })
+        except:
+            abort(500)
+
+    @app.route(f'{BASE_URL}/users/<int:id>', methods=['PATCH'])
+    def update_user_score(id):
+        try:
+            user = User.query.get(id)
+            user.score = user.score + int(request.get_json()['score'])
+            user.update()
+            return jsonify({
+                "success": True,
+                "score": user.score
+            })
+        except:
+            abort(400)
+
+    @app.route(f'{BASE_URL}/users', methods=['POST'])
+    def create_user():
+        set_error_code(500)
+        try:
+            try:
+                username = request.get_json()['username']
+            except:
+                set_error_code(400)
+                raise
+
+            if username == '' or not username:
+                set_error_code(400)
+                raise
+
+            user = User(username=username)
+            user.insert()
+
+            return (
+                jsonify({
+                    "status_code": 201,
+                    "success": True,
+                    "message": "created"
+                }), 201
+            )
         except:
             abort(get_error_code())
 

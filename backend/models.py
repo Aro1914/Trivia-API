@@ -109,7 +109,7 @@ class User(db.Model):
     username = Column(String)
     score = Column(Integer)
 
-    def __init__(self, username, score):
+    def __init__(self, username, score=0):
         self.username = username
         self.score = score
 
