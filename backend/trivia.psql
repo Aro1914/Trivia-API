@@ -53,6 +53,39 @@ ALTER TABLE public.categories_id_seq OWNER TO student;
 
 ALTER SEQUENCE public.categories_id_seq OWNED BY public.categories.id;
 
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: student
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    username text NOT NULL,
+    score integer
+);
+
+
+ALTER TABLE public.users OWNER TO student;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: student
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.users_id_seq OWNER TO student;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: student
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 --
 -- Name: questions; Type: TABLE; Schema: public; Owner: student
@@ -98,13 +131,17 @@ ALTER SEQUENCE public.questions_id_seq OWNED BY public.questions.id;
 
 ALTER TABLE ONLY public.categories ALTER COLUMN id SET DEFAULT nextval('public.categories_id_seq'::regclass);
 
+--
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: student
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 --
 -- Name: questions id; Type: DEFAULT; Schema: public; Owner: student
 --
 
 ALTER TABLE ONLY public.questions ALTER COLUMN id SET DEFAULT nextval('public.questions_id_seq'::regclass);
-
 
 --
 -- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: student
@@ -119,6 +156,15 @@ COPY public.categories (id, type) FROM stdin;
 6	Sports
 \.
 
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: student
+--
+
+COPY public.users (id, username, score) FROM stdin;
+1	Anonymous	0
+2	Emmanuel	0
+3	Reviewer	0
+\.
 
 --
 -- Data for Name: questions; Type: TABLE DATA; Schema: public; Owner: student
@@ -153,6 +199,11 @@ COPY public.questions (id, question, answer, difficulty, category, rating) FROM 
 
 SELECT pg_catalog.setval('public.categories_id_seq', 6, true);
 
+--
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: student
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 3, true);
 
 --
 -- Name: questions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: student
@@ -168,6 +219,12 @@ SELECT pg_catalog.setval('public.questions_id_seq', 23, true);
 ALTER TABLE ONLY public.categories
     ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
 
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: student
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 --
 -- Name: questions questions_pkey; Type: CONSTRAINT; Schema: public; Owner: student

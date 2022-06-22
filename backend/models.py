@@ -94,3 +94,35 @@ class Category(db.Model):
             'id': self.id,
             'type': self.type
         }
+
+
+"""
+User
+
+"""
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
+    score = Column(Integer)
+
+    def __init__(self, username, score):
+        self.username = username
+        self.score = score
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def format(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'score': self.score
+        }
