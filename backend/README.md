@@ -91,7 +91,7 @@ $>> flask run
 
 Once you have your server running, you can go start up your frontend to work with the backend server.
 
-## Api EndPoints
+## API EndPoints
 
 ### Get Categories
 
