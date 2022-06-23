@@ -8,7 +8,7 @@ import random
 
 from models import setup_db, Question, Category, User
 
-QUESTIONS_PER_PAGE = 2
+QUESTIONS_PER_PAGE = 3
 BASE_URL = '/api/v0.1.0'
 error = 0
 question_length = 0
