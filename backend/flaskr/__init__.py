@@ -108,6 +108,7 @@ def create_app(test_config=None):
     def create_category():
         try:
             try:
+                set_error_code(400)
                 incoming_category = request.get_json()['category']
                 if incoming_category == '':
                     set_error_code(422)
@@ -116,7 +117,7 @@ def create_app(test_config=None):
                 raise
 
             category = Category.query.filter(
-                Category.type == incoming_category).first()
+                Category.type.ilike(str(incoming_category))).first()
 
             if category is None:
                 new_category = Category(type=request.get_json()['category'])
@@ -232,46 +233,63 @@ def create_app(test_config=None):
             the form will clear and the question will appear at the end of the last page
             of the questions list in the "List" tab.
             """
+            set_error_code(400)
             try:
                 data = request.get_json()
-
-                question = data['question']
-                answer = data['answer']
-                category = int(data['category'])
-                difficulty = int(data['difficulty'])
-                rating = int(data['rating'])
+                try:
+                    question = data['question']
+                    answer = data['answer']
+                    category = int(data['category'])
+                    difficulty = int(data['difficulty'])
+                    rating = int(data['rating'])
+                except:
+                    raise
 
                 if not (question and answer and category and difficulty):
                     raise
 
-                new_question = Question(
-                    question=question,
-                    answer=answer,
-                    category=category,
-                    difficulty=difficulty,
-                    rating=rating
-                )
-                new_question.insert()
+                case_question = Question.query.filter(
+                    Question.question.ilike(str(question))).first()
 
-                return (jsonify({
-                    "status_code": 201,
-                    "success": True,
-                    "message": "created"
-                }), 201)
+                if case_question is None:
+                    new_question = Question(
+                        question=question,
+                        answer=answer,
+                        category=category,
+                        difficulty=difficulty,
+                        rating=rating
+                    )
+                    new_question.insert()
+
+                    return (jsonify({
+                        "status_code": 201,
+                        "success": True,
+                        "message": "created"
+                    }), 201)
+                else:
+                    set_error_code(409)
+                    raise
             except:
-                abort(400)
+                abort(get_error_code())
 
     @app.route(f'{BASE_URL}/questions/<int:id>', methods=['PATCH'])
     def update_rating(id):
+        set_error_code(500)
         try:
             question = Question.query.get(id)
-            question.rating = int(request.get_json()['rating'])
+
+            try:
+                question.rating = int(request.get_json()['rating'])
+            except:
+                set_error_code(400)
+                raise
+
             question.update()
             return jsonify({
                 "success": True
             })
         except:
-            abort(500)
+            abort(get_error_code())
 
     """
     @TODO:
@@ -324,6 +342,13 @@ def create_app(test_config=None):
                 previous_questions = request.get_json()['previous_questions']
             except:
                 set_error_code(400)
+                raise
+
+            # Guard to return a 404 error if the category provided does not have questions assigned to it
+            test_question = Question.query.filter(
+                Question.category == category_id).first()
+            if test_question is None:
+                set_error_code(404)
                 raise
 
             # Guard to return an empty dictionary if the amount of questions already attempted is equal to the amount of questions available for that category, or more than, due to an error in the client's request
@@ -381,25 +406,30 @@ def create_app(test_config=None):
         set_error_code(500)
         try:
             try:
-                username = request.get_json()['username']
+                set_error_code(400)
+                incoming_username = request.get_json()['username']
+                if incoming_username == '':
+                    set_error_code(422)
+                    raise
             except:
-                set_error_code(400)
                 raise
 
-            if username == '' or not username:
-                set_error_code(400)
-                raise
+            user = User.query.filter(
+                User.username.ilike(str(incoming_username))).first()
 
-            user = User(username=username)
-            user.insert()
+            if user is None:
+                new_user = User(username=request.get_json()['username'], score=int(request.get_json()[
+                                'score']) if 'score' in request.get_json() else 0)
+                new_user.insert()
 
-            return (
-                jsonify({
+                return (jsonify({
                     "status_code": 201,
                     "success": True,
                     "message": "created"
-                }), 201
-            )
+                }), 201)
+            else:
+                set_error_code(409)
+                raise
         except:
             abort(get_error_code())
 

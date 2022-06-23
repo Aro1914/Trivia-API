@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import '../stylesheets/Question.css';
+import $ from 'jquery';
+
+const base_url = '/api/v0.1.0';
 
 class Question extends Component {
   constructor() {
@@ -13,8 +16,52 @@ class Question extends Component {
         'History',
         'Entertainment',
         'Sports'
-      ]
+      ],
+      id: 0,
+      rating: 0
     };
+  }
+
+  componentDidMount () {
+    const { id, rating } = this.props;
+    this.setState({
+      id: id,
+      rating: rating
+    });
+  }
+
+  createRating () {
+    const ratings = [];
+    for (let index = 1; index <= 5; index++) {
+      ratings.push(
+        <span className='rate' key={index} onClick={() => this.updateRating(index)}>{this.state.rating >= (index) ? '💛' : '🖤'}</span>
+      );
+    }
+    return ratings;
+  }
+
+  updateRating (rating) {
+    $.ajax({
+      url: `${base_url}/questions/${this.state.id}`,
+      type: 'PATCH',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ rating: rating }),
+      xhrFields: {
+        withCredentials: true,
+      },
+      crossDomain: true,
+      success: (result) => {
+        this.setState({
+          rating: rating
+        });
+        return;
+      },
+      error: (error) => {
+        alert('Unable to update rating: ' + error.message);
+        return;
+      },
+    });
   }
 
   flipVisibility () {
@@ -54,6 +101,9 @@ class Question extends Component {
           >
             Answer: {answer}
           </span>
+        </div>
+        <div className='rating'>
+         Rating: {this.createRating()}
         </div>
       </div>
     );

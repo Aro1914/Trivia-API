@@ -4,7 +4,7 @@ import json
 from flask_sqlalchemy import SQLAlchemy
 
 from flaskr import create_app
-from models import setup_db, Question, Category
+from models import setup_db, Question, Category, User
 from settings import DATABASE_NAME_2, DATABASE_PORT, DATABASE_OWNER, DATABASE_PASSWORD
 import math
 import random
@@ -48,7 +48,7 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
 
-    def test_returned_on_get_categories(self):
+    def test_200_returned_on_get_categories(self):
         ''' Test to confirm the list of categories was returned successfully '''
         res = self.client().get(f'{BASE_URL}/categories')
 
@@ -67,7 +67,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'bad request')
 
-    def test_422_returned_on_empty_category_post_categories_request(self):
+    def test_422_returned_for_passing_an_empty_category_value_on_create_category_post_request(self):
         ''' Test to confirm that the valid response was returned on passing invalid parameters for the post categories request '''
         res = self.client().post(
             f'{BASE_URL}/categories', json={"category": ""})
@@ -77,25 +77,77 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable')
 
-    def test_valid_post_categories_request(self):
-        ''' Test to confirm that a category is added successfully on passing the required parameters for the request if not a valid response was returned to indicate the cause
-        Note: the value of the category variable must be changed just before a test, else a 409 error is returned indicating that the category already exists and as such, the provided category conflicts with an existing one
+    def test_409_returned_on_existing_category_named_passed_on_category_create_post_request(self):
+        ''' Test to confirm that a 409 error is returned indicating that the category already exists and as such, the provided category conflicts with an existing one
         '''
-        category = "Test Category"
+        last_category = Category.query.order_by(
+            Category.id.desc()).first().format()['type']
         res = self.client().post(
-            f'{BASE_URL}/categories', json={"category": category})
+            f'{BASE_URL}/categories', json={"category": last_category})
         data = json.loads(res.data)
-        new_category = Category.query.order_by(Category.id.desc()).first()
 
-        if data['success']:
-            self.assertEqual(res.status_code, 201)
-            self.assertEqual(data['message'], "created")
-            self.assertEqual(data['success'], True)
-            self.assertEqual(category, new_category.format()['type'])
-        else:
-            self.assertEqual(res.status_code, 409)
-            self.assertEqual(data['success'], False)
-            self.assertEqual(data['message'], 'conflict')
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'conflict')
+
+    def test_201_returned_on_valid_category_create_post_request(self):
+        ''' Test to confirm that a category is added successfully '''
+        test_category = 'Test Category '
+        last_category = Category.query.order_by(
+            Category.id.desc()).first().format()['type']
+        new_category = test_category if test_category not in last_category else last_category
+
+        try:
+            length = len(test_category) if test_category in new_category else len(
+                last_category)
+            count = int(new_category[length:])
+            new_category = f'{new_category[:length]}{count + 1}'
+        except:
+            new_category = f'{new_category}1'
+
+        res = self.client().post(
+            f'{BASE_URL}/categories', json={"category": new_category})
+        data = json.loads(res.data)
+        returned_category = Category.query.order_by(Category.id.desc()).first()
+
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(data['message'], "created")
+        self.assertEqual(data['success'], True)
+        self.assertEqual(new_category, returned_category.format()['type'])
+
+    def test_400_returned_on_invalid_update_rating_request(self):
+        ''' Test to confirm that the valid response was returned on passing passing invalid parameters for the update question rating request '''
+        random_id = random.randrange(1, 1001)
+        res = self.client().patch(
+            f"{BASE_URL}/questions/{random_id}", json={"rating": None})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], "bad request")
+
+    def test_200_returned_valid_update_rating_request(self):
+        ''' Test to confirm that a questions rating was successfully updated '''
+        case = Question.query.order_by(Question.id).first().format()
+        initial_rating = case['rating']
+        new_rating = 0
+
+        if initial_rating >= 0 and initial_rating < 5:
+            new_rating = int(initial_rating) + 1
+        elif initial_rating == 5:
+            new_rating = int(initial_rating) - 1
+        elif initial_rating < 0:
+            new_rating = 1
+
+        res = self.client().patch(
+            f"{BASE_URL}/questions/{case['id']}", json={"rating": new_rating})
+        data = json.loads(res.data)
+        updated_rating = Question.query.order_by(
+            Question.id).first().format()['rating']
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertNotEqual(initial_rating, updated_rating)
 
     def test_get_questions(self):
         ''' Test to confirm the list of questions was returned successfully '''
@@ -192,7 +244,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], "resource not found")
 
-    def test_422_returned_on_invalid_search_post_request(self):
+    def test_422_returned_for_passing_an_empty_search_value_on_search_post_request(self):
         ''' Test to confirm that the valid response was returned on passing an empty search value for questions search request '''
         res = self.client().post(
             f'{BASE_URL}/questions', json={"search_term": ''})
@@ -238,13 +290,34 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], "bad request")
 
+    def test_409_returned_on_existing_question_passed_on_question_create_post_request(self):
+        ''' Test to confirm that a 409 error is returned indicating that the question already exists and as such, the provided question conflicts with an existing one
+        '''
+        last_question = Question.query.order_by(
+            Question.id.desc()).first().format()
+        parameters = {
+            "question": last_question['question'],
+            "answer": last_question['answer'],
+            "category": last_question['category'],
+            "difficulty": last_question['difficulty'],
+            "rating": last_question['rating']
+        }
+        res = self.client().post(
+            f'{BASE_URL}/questions', json=parameters)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'conflict')
+
     def test_201_returned_on_valid_question_create_post_request(self):
         ''' Test to confirm that the valid response was returned on successful post question request '''
         parameters = {
             "question": "What side effect does dynamic phototherapy have on a patient's vision?",
             "answer": "Night vision",
             "category": 1,
-            "difficulty": 5
+            "difficulty": 5,
+            "rating": 5
         }
         res = self.client().post(f'{BASE_URL}/questions', json=parameters)
         data = json.loads(res.data)
@@ -299,7 +372,6 @@ class TriviaTestCase(unittest.TestCase):
         id = 1
         while get_questions_by_category_id(id):
             id = id+1
-
         res = self.client().post(f'{BASE_URL}/quizzes', json={
             "quiz_category": {
                 "id": id
@@ -376,12 +448,123 @@ class TriviaTestCase(unittest.TestCase):
         else:
             self.assertEqual(len(data['question']), 0)
 
-    def test_200_returned_valid_update_rating_request(self):
-        ''' Test to confirm that a questions rating was successfully updated '''
-        question = Question.query.first().format()
-        initial_rating = question['rating']
+    def test_422_returned_for_passing_an_empty_username_value_on_create_user_post_request(self):
+        ''' Test to confirm that the valid response was returned on passing invalid parameters for the post users request '''
+        res = self.client().post(
+            f'{BASE_URL}/users', json={"username": ""})
+        data = json.loads(res.data)
 
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
 
-# Make the tests conveniently executable
+    def test_409_returned_on_existing_username_passed_on_user_create_post_request(self):
+        ''' Test to confirm that a 409 error is returned indicating that the user already exists and as such, the provided username conflicts with an existing one
+        '''
+        last_username = User.query.order_by(
+            User.id.desc()).first().format()['username']
+        res = self.client().post(
+            f'{BASE_URL}/users', json={"username": last_username})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'conflict')
+
+    def test_201_returned_on_valid_user_create_post_request_without_score(self):
+        ''' Test to confirm that a user is added successfully without an initial score value passed '''
+        test_username = 'Test User '
+        last_username = User.query.order_by(
+            User.id.desc()).first().format()['username']
+        new_username = test_username if test_username not in last_username else last_username
+
+        try:
+            length = len(test_username) if test_username in new_username else len(
+                last_username)
+            count = int(new_username[length:])
+            new_username = f'{new_username[:length]}{count + 1}'
+        except:
+            new_username = f'{new_username}1'
+
+        res = self.client().post(
+            f'{BASE_URL}/users', json={"username": new_username})
+        data = json.loads(res.data)
+
+        returned_user = User.query.order_by(User.id.desc()).first()
+
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(data['message'], "created")
+        self.assertEqual(data['success'], True)
+        self.assertEqual(new_username, returned_user.format()['username'])
+
+    def test_201_returned_on_valid_user_create_post_request_with_score(self):
+        ''' Test to confirm that a user is added successfully with an initial score '''
+        score = random.randrange(0, 1001)
+        test_username = 'Test User '
+        last_username = User.query.order_by(
+            User.id.desc()).first().format()['username']
+        new_username = test_username if test_username not in last_username else last_username
+
+        try:
+            length = len(test_username) if test_username in new_username else len(
+                last_username)
+            count = int(new_username[length:])
+            new_username = f'{new_username[:length]}{count + 1}'
+        except:
+            new_username = f'{new_username}1'
+
+        res = self.client().post(
+            f'{BASE_URL}/users', json={
+                "username": new_username,
+                "score": score
+            })
+        data = json.loads(res.data)
+
+        returned_user = User.query.order_by(User.id.desc()).first()
+
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(data['message'], "created")
+        self.assertEqual(data['success'], True)
+        self.assertEqual(new_username, returned_user.format()['username'])
+        self.assertEqual(score, returned_user.format()['score'])
+
+    def test_400_returned_on_invalid_update_score_request(self):
+        ''' Test to confirm that the valid response was returned on passing passing invalid parameters for the update user score request '''
+        random_id = random.randrange(1, 1001)
+        res = self.client().patch(
+            f"{BASE_URL}/users/{random_id}", json={"score": None})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], "bad request")
+
+    def test_200_returned_valid_update_score_request(self):
+        ''' Test to confirm that a user score was successfully updated '''
+        case = User.query.order_by(User.id).first().format()
+        initial_score = case['score']
+        new_score = initial_score + 10
+
+        res = self.client().patch(
+            f"{BASE_URL}/users/{case['id']}", json={"score": new_score})
+        data = json.loads(res.data)
+        updated_score = User.query.order_by(
+            User.id).first().format()['score']
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertNotEqual(initial_score, updated_score)
+
+    def test_200_returned_on_get_users(self):
+        ''' Test to confirm the list of users was returned successfully '''
+        res = self.client().get(f'{BASE_URL}/users')
+
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['users'])
+
+        # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

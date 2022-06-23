@@ -4,7 +4,7 @@ import '../stylesheets/FormView.css';
 
 const base_url = '/api/v0.1.0';
 
-class FormView extends Component {
+class CategoryFormView extends Component {
   constructor(props) {
     super();
     this.state = {
@@ -27,7 +27,7 @@ class FormView extends Component {
       },
       crossDomain: true,
       success: (result) => {
-        document.getElementById('add-question-form').reset();
+        document.getElementById('add-category-form').reset();
         return;
       },
       error: (error) => {
@@ -47,7 +47,7 @@ class FormView extends Component {
         <h2>Add a New Category</h2>
         <form
           className='form-view'
-          id='add-question-form'
+          id='add-category-form'
           onSubmit={this.submitCategory}
         >
           <label>
@@ -61,4 +61,4 @@ class FormView extends Component {
   }
 }
 
-export default FormView;
+export default CategoryFormView;

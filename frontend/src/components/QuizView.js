@@ -17,6 +17,10 @@ class QuizView extends Component {
       currentQuestion: {},
       guess: '',
       forceEnd: false,
+      users: [],
+      user: 0,
+      username: '',
+      cumulativeScore: 0
     };
   }
 
@@ -33,7 +37,84 @@ class QuizView extends Component {
         return;
       },
     });
+
+    this.getUsers();
   }
+
+  getUsers () {
+    $.ajax({
+      url: `${base_url}/users`,
+      type: 'GET',
+      success: (result) => {
+        this.setState({ users: result.users });
+        return;
+      },
+      error: (error) => {
+        alert('Unable to load Users');
+        return;
+      },
+    });
+  }
+
+  selectUser (id) {
+    this.setState({ user: id });
+  }
+
+  updateUserScore () {
+    $.ajax({
+      url: `${base_url}/users/${this.state.user}`,
+      type: 'PATCH',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({ score: this.state.numCorrect }),
+      xhrFields: {
+        withCredentials: true,
+      },
+      crossDomain: true,
+      success: (result) => {
+        this.setState({
+          cumulativeScore: result.score
+        });
+        return;
+      },
+      error: (error) => {
+        alert(`Unable to update User's cumulative score: ` + error.message);
+        return;
+      },
+    });
+  }
+
+  submitUser = (event) => {
+    event.preventDefault();
+    $.ajax({
+      url: `${base_url}/users`,
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        username: this.state.username,
+      }),
+      xhrFields: {
+        withCredentials: true,
+      },
+      crossDomain: true,
+      success: (result) => {
+        this.getUsers();
+        document.getElementById('add-user-form').reset();
+        this.setState({ username: '' });
+        return;
+      },
+      error: (error) => {
+        alert('Unable to add User. Please try your request again');
+        return;
+      },
+    });
+  };
+
+  handleUserChange = (event) => {
+    event.preventDefault();
+    this.setState({ username: event.target.value });
+  };
 
   selectCategory = ({ type, id = 0 }) => {
     this.setState({ quizCategory: { type, id } }, this.getNextQuestion);
@@ -68,8 +149,9 @@ class QuizView extends Component {
           previousQuestions: previousQuestions,
           currentQuestion: result.question,
           guess: '',
-          forceEnd: Object.keys(result.question).length ? false : true,
+          forceEnd: (Object.keys(result.question).length || result.question === null) ? false : true,
         });
+        this.state.forceEnd && this.updateUserScore();
         return;
       },
       error: (error) => {
@@ -89,6 +171,7 @@ class QuizView extends Component {
   };
 
   restartGame = () => {
+    this.getUsers();
     this.setState({
       quizCategory: null,
       previousQuestions: [],
@@ -97,8 +180,47 @@ class QuizView extends Component {
       currentQuestion: {},
       guess: '',
       forceEnd: false,
+      user: 0
     });
   };
+
+  userForm () {
+    return (
+      <div id='add-form'>
+        <h2>Create User</h2>
+        <form
+          className='form-view'
+          id='add-user-form'
+          onSubmit={this.submitUser}
+        >
+          <label>
+            Username
+            <input type='text' name='username' onChange={this.handleUserChange} />
+          </label>
+          <input type='submit' className='button' value='Submit' />
+        </form>
+      </div>
+    );
+  }
+
+  renderUserSelect () {
+    return (
+      <div className='quiz-play-holder'>
+        <div className='choose-header'>Play as</div>
+        <div className='category-holder'>
+          {this.state.users.map(user => {
+            return (
+              <div key={user.id} onClick={() => this.selectUser(user.id)} className='play-category'>
+                <p>{user.username} - Score: {user.score}</p>
+              </div>
+            );
+          })}
+        </div>
+        <div className='choose-header'>New?</div>
+        {this.userForm()}
+      </div>
+    );
+  }
 
   renderPrePlay () {
     return (
@@ -132,6 +254,9 @@ class QuizView extends Component {
       <div className='quiz-play-holder'>
         <div className='final-header'>
           Your Final Score is {this.state.numCorrect}
+        </div>
+        <div className='cumulative'>
+          Your Cumulative Score is {this.state.cumulativeScore}!
         </div>
         <div className='play-again button' onClick={this.restartGame}>
           Play Again?
@@ -171,30 +296,30 @@ class QuizView extends Component {
   }
 
   renderPlay () {
-    return this.state.previousQuestions.length === questionsPerPlay ||
-      this.state.forceEnd ? (
-      this.renderFinalScore()
-    ) : this.state.showAnswer ? (
-      this.renderCorrectAnswer()
-    ) : (
-      <div className='quiz-play-holder'>
-        <div className='quiz-question'>
-          {this.state.currentQuestion.question}
+    return (this.state.previousQuestions.length === questionsPerPlay || this.state.forceEnd)
+      ? (
+        this.renderFinalScore()
+      ) : this.state.showAnswer ? (
+        this.renderCorrectAnswer()
+      ) : (
+        <div className='quiz-play-holder'>
+          <div className='quiz-question'>
+            {this.state.currentQuestion.question}
+          </div>
+          <form onSubmit={this.submitGuess}>
+            <input type='text' name='guess' onChange={this.handleChange} />
+            <input
+              className='submit-guess button'
+              type='submit'
+              value='Submit Answer'
+            />
+          </form>
         </div>
-        <form onSubmit={this.submitGuess}>
-          <input type='text' name='guess' onChange={this.handleChange} />
-          <input
-            className='submit-guess button'
-            type='submit'
-            value='Submit Answer'
-          />
-        </form>
-      </div>
-    );
+      );
   }
 
   render () {
-    return this.state.quizCategory ? this.renderPlay() : this.renderPrePlay();
+    return this.state.user ? this.state.quizCategory ? this.renderPlay() : this.renderPrePlay() : this.renderUserSelect();
   }
 }
 
