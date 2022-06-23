@@ -13,7 +13,7 @@ class FormView extends Component {
       difficulty: 1,
       category: 1,
       categories: {},
-      rating: 0
+      rating: 1
     };
   }
 
