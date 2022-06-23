@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import './stylesheets/App.css';
 import FormView from './components/FormView';
 import CategoryFormView from './components/CategoryFormView';
 import QuestionView from './components/QuestionView';

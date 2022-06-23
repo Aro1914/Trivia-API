@@ -154,7 +154,7 @@ Fetches a list of dictionaries with the questions information, including the lis
     - `rating`: An integer indicating the rating of the question
   - `total_questions`: An integer of the total number of questions
   - `categories`: An object of `id: category_string` key: value pairs
-  - `current_category`: A null value
+  - `current_category`: Zero
 
 Example Response:
 
@@ -164,7 +164,7 @@ Example Response:
   "questions": [],
   "total_questions": 0,
   "categories": {},
-  "current_category": null
+  "current_category": 0
 }
 ```
 
@@ -206,7 +206,7 @@ Fetches a list of dictionaries with the questions information that match the sea
     - `difficulty`: An integer indicating the difficulty of the question
     - `rating`: An integer indicating the rating of the question
   - `total_questions`: An integer of the total number of questions
-  - `current_category`: A null value
+  - `current_category`: Zero
 
 Example Response:
 
@@ -215,7 +215,7 @@ Example Response:
   "success": true,
   "questions": [],
   "total_questions": 0,
-  "current_category": null
+  "current_category": 0
 }
 ```
 
@@ -252,16 +252,9 @@ Creates a new question
   - `difficulty`: An integer indicating the difficulty of the question
   - `rating`: An integer indicating the rating of the question
 - Returns: An object with the following properties:
-  - `success` A boolean representing the status of the result of the request.
-  - `questions`: An array of objects with keys:
-    - `id`: The ID of the question
-    - `question`: The question
-    - `answer`: The answer
-    - `category`: The ID of category of the question
-    - `difficulty`: An integer indicating the difficulty of the question
-    - `rating`: An integer indicating the rating of the question
-  - `total_questions`: An integer of the total number of questions
-  - `current_category`: A null value
+  - `status_code`: HTTP status code
+  - `success`: A boolean representing the status of the result of the request.
+  - `message`: A message describing the result of the request
   
 Example Response:
 

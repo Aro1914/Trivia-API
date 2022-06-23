@@ -10,7 +10,7 @@ import math
 import random
 
 BASE_URL = '/api/v0.1.0'
-QUESTIONS_PER_PAGE = 2
+QUESTIONS_PER_PAGE = 3
 
 
 def get_questions_by_category_id(category_id):
@@ -156,7 +156,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['current_category'], None)
+        self.assertEqual(data['current_category'], 0)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['categories']))
@@ -183,7 +183,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['current_category'], None)
+        self.assertEqual(data['current_category'], 0)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['categories']))
@@ -271,7 +271,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['current_category'], None)
+        self.assertEqual(data['current_category'], 0)
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
 

@@ -163,7 +163,7 @@ def create_app(test_config=None):
                 "questions": return_questions,
                 "total_questions": question_count,
                 "categories": get_categories(),
-                "current_category": None
+                "current_category": 0
             })
         except:
             abort(404)
@@ -218,7 +218,7 @@ def create_app(test_config=None):
                     "success": True,
                     "questions": return_questions,
                     "total_questions": question_count,
-                    "current_category": None
+                    "current_category": 0
                 })
             except:
                 abort(404)
@@ -347,7 +347,7 @@ def create_app(test_config=None):
             # Guard to return a 404 error if the category provided does not have questions assigned to it
             test_question = Question.query.filter(
                 Question.category == category_id).first()
-            if test_question is None:
+            if test_question is None and category_id != 0:
                 set_error_code(404)
                 raise
 

@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import '../stylesheets/Header.css';
+import styles from '../stylesheets/Header.module.css';
 
 class Header extends Component {
-  navTo(uri) {
+  navTo (uri) {
     window.location.href = window.location.origin + uri;
   }
 
-  render() {
+  render () {
     return (
-      <div className='App-header'>
+      <div className={styles.appHeader}>
         <h1
+          className={styles.mainHeader}
           onClick={() => {
             this.navTo('');
           }}
@@ -17,6 +18,7 @@ class Header extends Component {
           Udacitrivia
         </h1>
         <h2
+          className={styles.headers}
           onClick={() => {
             this.navTo('');
           }}
@@ -24,6 +26,7 @@ class Header extends Component {
           List
         </h2>
         <h3
+          className={styles.headers}
           onClick={() => {
             this.navTo('/add-question');
           }}
@@ -31,6 +34,7 @@ class Header extends Component {
           Add Question
         </h3>
         <h3
+          className={styles.headers}
           onClick={() => {
             this.navTo('/add-category');
           }}
@@ -38,6 +42,7 @@ class Header extends Component {
           Add Category
         </h3>
         <h2
+          className={styles.headers}
           onClick={() => {
             this.navTo('/play');
           }}

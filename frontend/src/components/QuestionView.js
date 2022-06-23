@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../stylesheets/App.css';
+import styles from '../stylesheets/QuestionsView.module.css';
 import Question from './Question';
 import Search from './Search';
 import $ from 'jquery';
@@ -14,7 +14,7 @@ class QuestionView extends Component {
       page: 1,
       totalQuestions: 0,
       categories: {},
-      currentCategory: null,
+      currentCategory: 0,
       onSearch: false,
       searchTerm: ''
     };
@@ -32,6 +32,7 @@ class QuestionView extends Component {
         this.setState({
           questions: result.questions,
           totalQuestions: result.total_questions,
+          currentCategory: result.current_category,
           categories: result.categories,
           page: page
         });
@@ -61,12 +62,12 @@ class QuestionView extends Component {
 
   createPagination () {
     let pageNumbers = [];
-    let maxPage = Math.ceil(this.state.totalQuestions / 2);
+    let maxPage = Math.ceil(this.state.totalQuestions / 3);
     for (let i = 1; i <= maxPage; i++) {
       pageNumbers.push(
         <span
           key={i}
-          className={`page-num ${i === this.state.page ? 'active' : ''}`}
+          className={`${styles.pageNum} ${i === this.state.page ? styles.active : ''}`}
           onClick={() => {
             this.selectPage(i);
           }}
@@ -135,9 +136,7 @@ class QuestionView extends Component {
           url: `${base_url}/questions/${id}`, //TODO: update request URL
           type: 'DELETE',
           success: (result) => {
-            // this.getQuestions();
             this.setState({
-              ...this.state,
               questions: this.state.questions.filter(question => question.id !== result.deleted_id)
             });
           },
@@ -152,8 +151,9 @@ class QuestionView extends Component {
 
   render () {
     return (
-      <div className='question-view'>
-        <div className='categories-list'>
+      <div className={styles.questionView}>
+        <h1 className={styles.theme}>Questions</h1>
+        <div className={styles.categoriesList}>
           <h2
             onClick={() => {
               this.getQuestions();
@@ -164,6 +164,7 @@ class QuestionView extends Component {
           <ul>
             <li
               onClick={() => { this.getQuestions(1); }}
+              className={`${this.state.currentCategory === 0 ? styles.selected : ''}`}
             >
               All
             </li>
@@ -173,20 +174,20 @@ class QuestionView extends Component {
                 onClick={() => {
                   this.getByCategory(id);
                 }}
+                className={`${Number(this.state.currentCategory) === Number(id) ? styles.selected : ''}`}
               >
-                {this.state.categories[id]}
                 <img
-                  className='category'
+                  className={styles.category}
                   alt={`${this.state.categories[id].toLowerCase()}`}
                   src={`${id < 7 ? this.state.categories[id].toLowerCase() : 'new'}.svg`}
                 />
+                <span>{this.state.categories[id]}</span>
               </li>
             ))}
           </ul>
-          <Search submitSearch={this.submitSearch} />
         </div>
-        <div className='questions-list'>
-          <h2>Questions</h2>
+        <div className={styles.questionsList}>
+          <Search submitSearch={this.submitSearch} />
           {this.state.questions.map((q, ind) => (
             <Question
               key={q.id}
@@ -199,7 +200,7 @@ class QuestionView extends Component {
               questionAction={this.questionAction(q.id)}
             />
           ))}
-          <div className='pagination-menu'>{this.createPagination()}</div>
+          <div className={styles.paginationMenu}>{this.createPagination()}</div>
         </div>
       </div>
     );

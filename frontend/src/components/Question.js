@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../stylesheets/Question.css';
+import styles from '../stylesheets/QuestionsView.module.css';
 import $ from 'jquery';
 
 const base_url = '/api/v0.1.0';
@@ -34,7 +34,7 @@ class Question extends Component {
     const ratings = [];
     for (let index = 1; index <= 5; index++) {
       ratings.push(
-        <span className='rate' key={index} onClick={() => this.updateRating(index)}>{this.state.rating >= (index) ? '💛' : '🖤'}</span>
+        <span className={styles.rate} key={index} onClick={() => this.updateRating(index)}>{this.state.rating >= (index) ? '💛' : '🖤'}</span>
       );
     }
     return ratings;
@@ -71,29 +71,16 @@ class Question extends Component {
   render () {
     const { question, answer, category, difficulty } = this.props;
     return (
-      <div className='Question-holder'>
+      <div className={styles.questionHolder}>
         <div className='Question'>{question}</div>
-        <div className='Question-status'>
-          <img
-            className='category'
-            alt={`${category.toLowerCase()}`}
-            src={`${this.state.originalCategories.some(el => el === category) ? category.toLowerCase() : 'new'}.svg`}
-          />
-          <div className='difficulty'>Difficulty: {difficulty}</div>
-          <img
-            src='delete.png'
-            alt='delete'
-            className='delete'
-            onClick={() => this.props.questionAction('DELETE')}
-          />
-        </div>
+
         <div
-          className='show-answer button'
+          className={`${styles.showAnswer} ${this.state.visibleAnswer ? styles.shown : ''}`}
           onClick={() => this.flipVisibility()}
         >
-          {this.state.visibleAnswer ? 'Hide' : 'Show'} Answer
+          <span>{this.state.visibleAnswer ? 'Hide' : 'Show'} Answer </span>
         </div>
-        <div className='answer-holder'>
+        <div className={styles.answerHolder}>
           <span
             style={{
               visibility: this.state.visibleAnswer ? 'visible' : 'hidden',
@@ -102,8 +89,24 @@ class Question extends Component {
             Answer: {answer}
           </span>
         </div>
-        <div className='rating'>
-         Rating: {this.createRating()}
+        <div className={styles.questionStatus}>
+          <img
+            className={styles.category}
+            alt={`${category.toLowerCase()}`}
+            src={`${this.state.originalCategories.some(el => el === category) ? category.toLowerCase() : 'new'}.svg`}
+          />
+          <div className={styles.rating}>
+            Rating: {this.createRating()}
+          </div>
+          <div className={styles.difficulty}>Difficulty: {difficulty}</div>
+          <div className='deleteContainer'>
+            <img
+              src='delete.png'
+              alt='delete'
+              className={styles.delete}
+              onClick={() => this.props.questionAction('DELETE')}
+            />
+          </div>
         </div>
       </div>
     );

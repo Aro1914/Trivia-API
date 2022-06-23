@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import '../stylesheets/FormView.css';
+import styles from '../stylesheets/FormView.module.css';
 
 const base_url = '/api/v0.1.0';
 
@@ -44,14 +44,15 @@ class CategoryFormView extends Component {
   render () {
     return (
       <div id='add-form'>
-        <h2>Add a New Category</h2>
+        
         <form
-          className='form-view'
+          className={styles.form}
           id='add-category-form'
           onSubmit={this.submitCategory}
         >
+          <h2>Add a New Category</h2>
           <label>
-            Category
+            <span>Category</span>
             <input type='text' name='category' onChange={this.handleChange} />
           </label>
           <input type='submit' className='button' value='Submit' />

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import '../stylesheets/QuizView.css';
+import styling from '../stylesheets/QuizView.module.css';
+import style from '../stylesheets/FormView.module.css';
 
 const questionsPerPlay = 5;
 const base_url = '/api/v0.1.0';
@@ -9,7 +10,7 @@ class QuizView extends Component {
   constructor(props) {
     super();
     this.state = {
-      quizCategory: null,
+      quizCategory: 0,
       previousQuestions: [],
       showAnswer: false,
       categories: {},
@@ -148,10 +149,15 @@ class QuizView extends Component {
           showAnswer: false,
           previousQuestions: previousQuestions,
           currentQuestion: result.question,
-          guess: '',
-          forceEnd: (Object.keys(result.question).length || result.question === null) ? false : true,
+          guess: ''
         });
-        this.state.forceEnd && this.updateUserScore();
+        if (!Object.keys(result.question).length || result.question === null || this.state.previousQuestions.length === questionsPerPlay) {
+          this.setState({
+            forceEnd: true
+          });
+          this.state.forceEnd && this.updateUserScore();
+        }
+
         return;
       },
       error: (error) => {
@@ -187,17 +193,17 @@ class QuizView extends Component {
   userForm () {
     return (
       <div id='add-form'>
-        <h2>Create User</h2>
+        <h2 className={styling.entreaty}>New? Create your profile</h2>
         <form
-          className='form-view'
+          className={style.form}
           id='add-user-form'
           onSubmit={this.submitUser}
         >
           <label>
-            Username
+            <span>Username</span>
             <input type='text' name='username' onChange={this.handleUserChange} />
           </label>
-          <input type='submit' className='button' value='Submit' />
+          <input type='submit' className={styling.button} value='Submit' />
         </form>
       </div>
     );
@@ -205,18 +211,17 @@ class QuizView extends Component {
 
   renderUserSelect () {
     return (
-      <div className='quiz-play-holder'>
-        <div className='choose-header'>Play as</div>
-        <div className='category-holder'>
+      <div className={styling.quizPlayHolder}>
+        <div className={styling.chooseHeader}>Play as</div>
+        <div className={styling.categoryHolder}>
           {this.state.users.map(user => {
             return (
-              <div key={user.id} onClick={() => this.selectUser(user.id)} className='play-category'>
+              <div key={user.id} onClick={() => this.selectUser(user.id)} className={styling.playCategory}>
                 <p>{user.username} - Score: {user.score}</p>
               </div>
             );
           })}
         </div>
-        <div className='choose-header'>New?</div>
         {this.userForm()}
       </div>
     );
@@ -224,10 +229,10 @@ class QuizView extends Component {
 
   renderPrePlay () {
     return (
-      <div className='quiz-play-holder'>
-        <div className='choose-header'>Choose Category</div>
-        <div className='category-holder'>
-          <div className='play-category' onClick={this.selectCategory}>
+      <div className={styling.quizPlayHolder}>
+        <div className={styling.chooseHeader}>Choose Category</div>
+        <div className={styling.categoryHolder}>
+          <div className={styling.playCategory} onClick={this.selectCategory}>
             ALL
           </div>
           {Object.keys(this.state.categories).map((id) => {
@@ -235,7 +240,7 @@ class QuizView extends Component {
               <div
                 key={id}
                 value={id}
-                className='play-category'
+                className={styling.playCategory}
                 onClick={() =>
                   this.selectCategory({ type: this.state.categories[id], id })
                 }
@@ -251,14 +256,14 @@ class QuizView extends Component {
 
   renderFinalScore () {
     return (
-      <div className='quiz-play-holder'>
-        <div className='final-header'>
+      <div className={styling.quizPlayHolder}>
+        <div>
           Your Final Score is {this.state.numCorrect}
         </div>
-        <div className='cumulative'>
+        <div className={styling.cumulative}>
           Your Cumulative Score is {this.state.cumulativeScore}!
         </div>
-        <div className='play-again button' onClick={this.restartGame}>
+        <div className={styling.button} onClick={this.restartGame}>
           Play Again?
         </div>
       </div>
@@ -279,15 +284,15 @@ class QuizView extends Component {
   renderCorrectAnswer () {
     let evaluate = this.evaluateAnswer();
     return (
-      <div className='quiz-play-holder'>
-        <div className='quiz-question'>
+      <div className={styling.quizPlayHolder}>
+        <div className={styling.quizCategory}>
           {this.state.currentQuestion.question}
         </div>
-        <div className={`${evaluate ? 'correct' : 'wrong'}`}>
+        <div className={`${evaluate ? styling.correct : styling.wrong}`}>
           {evaluate ? 'You were correct!' : 'You were incorrect'}
         </div>
-        <div className='quiz-answer'>{this.state.currentQuestion.answer}</div>
-        <div className='next-question button' onClick={this.getNextQuestion}>
+        <div className={styling.quizAnswer}>{this.state.currentQuestion.answer}</div>
+        <div className={styling.button} onClick={this.getNextQuestion}>
           {' '}
           Next Question{' '}
         </div>
@@ -302,14 +307,15 @@ class QuizView extends Component {
       ) : this.state.showAnswer ? (
         this.renderCorrectAnswer()
       ) : (
-        <div className='quiz-play-holder'>
-          <div className='quiz-question'>
+        <div className={styling.quizPlayHolder}>
+          <div className={styling.quizCategory}>
             {this.state.currentQuestion.question}
           </div>
-          <form onSubmit={this.submitGuess}>
-            <input type='text' name='guess' onChange={this.handleChange} />
+          <form onSubmit={this.submitGuess} className={style.form}>
+            <label>
+              <input type='text' name='guess' onChange={this.handleChange} />
+            </label>
             <input
-              className='submit-guess button'
               type='submit'
               value='Submit Answer'
             />

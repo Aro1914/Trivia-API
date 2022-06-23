@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import '../stylesheets/FormView.css';
+import styles from '../stylesheets/FormView.module.css';
 
 const base_url = '/api/v0.1.0';
 
@@ -68,22 +68,22 @@ class FormView extends Component {
   render () {
     return (
       <div id='add-form'>
-        <h2>Add a New Trivia Question</h2>
         <form
-          className='form-view'
+          className={styles.form}
           id='add-question-form'
           onSubmit={this.submitQuestion}
         >
+          <h2>Add a New Trivia Question</h2>
           <label>
-            Question
-            <input type='text' name='question' onChange={this.handleChange} />
+            <span>Question</span>
+            <textarea rows='3' name='question' onChange={this.handleChange} />
           </label>
           <label>
-            Answer
+            <span>Answer</span>
             <input type='text' name='answer' onChange={this.handleChange} />
           </label>
           <label>
-            Difficulty
+            <span>Difficulty</span>
             <select name='difficulty' onChange={this.handleChange}>
               <option value='1'>1</option>
               <option value='2'>2</option>
@@ -93,7 +93,7 @@ class FormView extends Component {
             </select>
           </label>
           <label>
-            Category
+            <span>Category</span>
             <select name='category' onChange={this.handleChange}>
               {Object.keys(this.state.categories).map((id) => {
                 return (
@@ -105,7 +105,7 @@ class FormView extends Component {
             </select>
           </label>
           <label>
-            Rating
+            <span>Rating</span>
             <select name='rating' onChange={this.handleChange}>
               <option value='1'>1</option>
               <option value='2'>2</option>

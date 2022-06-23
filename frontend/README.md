@@ -34,7 +34,7 @@ And that should do it, open [http://localhost:3000](http://localhost:3000) to vi
 
 The app opens a view that list all the questions by default and gives you the ability to view questions by their category by clicking on the desired category on the side bar.
 
-The questions are loaded 2 at a time on a page on this project and set to switch pages based on the category selected(This functionality I added myself 😇).
+The questions are loaded three (3) at a time on a page on this project and set to switch pages based on the category selected.
 
 ### Add Question page
 
@@ -49,6 +49,7 @@ If the category provided already exists, you will get a conflict alert and would
 
 Here you play the quiz
 
-- In this page you are prompted to choose a category before you can start the quiz.
+- In this page you would have to choose the user profile to play the quiz as. You could also create your own user profile if you want.
+- After which you will be prompted to choose a category before you can start the quiz.
 - Upon choosing a category, you will be taken to the game, where you will be provided with a question to answer.
-- You have 5 turns to play the game if the category selected has up to 5 questions under it else you will only get the available questions in the category after which a final score is displayed.
+- You have 5 turns to play the game if the category selected has up to 5 questions assigned to it, but if not, you will only get the available questions in the category after which a final score is displayed and result is added to your cumulative score.
