@@ -2,7 +2,7 @@
 
 ## Welcome to Udacitrivia
 
-A completely self reliant quiz application bundled with both frontend and backend clients.
+Udacitrivia! An intense quiz game, capable of tracking user progress, adding categories and questions to the database, and creating new user profiles.
 
 ## App Screenshots
 
