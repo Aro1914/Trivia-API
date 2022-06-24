@@ -1,6 +1,6 @@
 # Trivia App
 
-## Welcome to Trivia
+## Welcome to Udacitrivia
 
 A completely self reliant quiz application bundled with both frontend and backend clients.
 
