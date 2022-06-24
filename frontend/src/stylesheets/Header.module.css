@@ -34,7 +34,7 @@
   cursor: pointer;
 }
 
-.headers:hover {
+.headers:hover,.selected {
   background-color: var(--theme);
 }
 
