@@ -543,7 +543,7 @@ class TriviaTestCase(unittest.TestCase):
         ''' Test to confirm that a user score was successfully updated '''
         case = User.query.order_by(User.id).first().format()
         initial_score = case['score']
-        new_score = initial_score + 10
+        new_score = 1
 
         res = self.client().patch(
             f"{BASE_URL}/users/{case['id']}", json={"score": new_score})
@@ -564,6 +564,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['users'])
+
 
         # Make the tests conveniently executable
 if __name__ == "__main__":

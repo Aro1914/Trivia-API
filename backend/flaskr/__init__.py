@@ -11,7 +11,7 @@ from models import setup_db, Question, Category, User
 QUESTIONS_PER_PAGE = 3
 BASE_URL = '/api/v0.1.0'
 error = 0
-question_length = 0
+question_count = 0
 
 
 def set_error_code(code):
@@ -95,7 +95,8 @@ def create_app(test_config=None):
     @app.route(f"{BASE_URL}/categories")
     def retrieve_categories():
         try:
-            categories = get_categories(for_quiz="quiz" in request.args)
+            categories = get_categories(
+                for_quiz=request.args.get("quiz", False, type=bool))
 
             return jsonify({
                 "success": True,

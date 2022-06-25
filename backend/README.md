@@ -6,7 +6,7 @@
 
 1. **Python 3.10** - Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
 
-2. **Virtual Environment** - I recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organized. Instructions for setting up a virual environment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+2. **Virtual Environment** - I recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organized. Instructions for setting up a virtual environment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
 
 3. **PIP Dependencies** - Once your virtual environment is setup and running, install the required dependencies by navigating to the `/backend` directory and running:
 
@@ -97,7 +97,7 @@ Once you have your server running, you can go start up your frontend to work wit
 
 `GET '/api/v0.1.0/categories'`
 
-Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category. If the request argument quiz is set to `true`, then only categories that have questions assigned to them are returned, else by default all categories are returned.
+Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category. If the request argument `quiz` is set to `true`, then only categories that have questions assigned to them are returned, else by default all categories are returned.
 
 - Request Arguments: quiz- type boolean, default false
 - Returns: An object with two keys:
