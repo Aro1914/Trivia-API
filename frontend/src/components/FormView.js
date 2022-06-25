@@ -114,7 +114,7 @@ class FormView extends Component {
               <option value='5'>5</option>
             </select>
           </label>
-          <input type='submit' className='button' value='Submit' />
+          <input type='submit' value='Submit' />
         </form>
       </div>
     );

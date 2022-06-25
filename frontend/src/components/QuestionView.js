@@ -152,7 +152,6 @@ class QuestionView extends Component {
   render () {
     return (
       <div className={styles.questionView}>
-        <h1 className={styles.theme}>Questions</h1>
         <div className={styles.categoriesList}>
           <h2
             onClick={() => {
@@ -187,7 +186,9 @@ class QuestionView extends Component {
           </ul>
         </div>
         <div className={styles.questionsList}>
-          <Search submitSearch={this.submitSearch} />
+          <h2>
+            Questions
+          </h2>
           {this.state.questions.map((q, ind) => (
             <Question
               key={q.id}
@@ -200,6 +201,7 @@ class QuestionView extends Component {
               questionAction={this.questionAction(q.id)}
             />
           ))}
+          <Search submitSearch={this.submitSearch} />
           <div className={styles.paginationMenu}>{this.createPagination()}</div>
         </div>
       </div>

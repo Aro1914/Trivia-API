@@ -193,17 +193,18 @@ class QuizView extends Component {
   userForm () {
     return (
       <div id='add-form'>
-        <h2 className={styling.entreaty}>New? Create your profile</h2>
+
         <form
           className={style.form}
           id='add-user-form'
           onSubmit={this.submitUser}
         >
+          <h2>Create new profile</h2>
           <label>
             <span>Username</span>
             <input type='text' name='username' onChange={this.handleUserChange} />
           </label>
-          <input type='submit' className={styling.button} value='Submit' />
+          <input type='submit' value='Submit' />
         </form>
       </div>
     );

@@ -12,7 +12,7 @@
 
 .form > h2 {
   width: 100%;
-  align-items: center;
+  text-align: left !important;
 }
 
 .form > label {
@@ -76,10 +76,11 @@
   color: var(--subTheme);
   transition: all 0.5s;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .form > input[type="submit"]:hover {
   background-color: var(--subTheme);
   color: #fff;
-  transform: scale(1.1, 1.1);
+  transform: scale(1.035, 1.23);
 }

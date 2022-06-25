@@ -44,7 +44,7 @@ class CategoryFormView extends Component {
   render () {
     return (
       <div id='add-form'>
-        
+
         <form
           className={styles.form}
           id='add-category-form'
@@ -55,7 +55,7 @@ class CategoryFormView extends Component {
             <span>Category</span>
             <input type='text' name='category' onChange={this.handleChange} />
           </label>
-          <input type='submit' className='button' value='Submit' />
+          <input type='submit' value='Submit' />
         </form>
       </div>
     );
