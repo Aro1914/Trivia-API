@@ -8,19 +8,19 @@ Udacitrivia! An intense quiz game, capable of tracking user progress, adding cat
 
 ### Home Page
 
-![Screenshot 2022-06-24 10 05 38 AM](https://user-images.githubusercontent.com/68448315/175503310-93eda114-2e35-4d59-914c-6dc033947d0c.png)
+![Screenshot 2022-06-26 12 29 29 AM](https://user-images.githubusercontent.com/68448315/175793512-92f74b20-eb74-43fe-9fbc-5ec06936bc7f.png)
 
 ### Add Question Page
 
-![Screenshot 2022-06-24 10 05 48 AM](https://user-images.githubusercontent.com/68448315/175503350-01aa21de-18a6-4f17-b233-bc9ced324e3f.png)
+![Screenshot 2022-06-26 12 29 36 AM](https://user-images.githubusercontent.com/68448315/175793521-cc66cc7e-95a6-4a68-9839-dbd105f2c874.png)
 
 ### Add Category Page
 
-![Screenshot 2022-06-24 10 05 54 AM](https://user-images.githubusercontent.com/68448315/175503403-cad0c71c-7e26-418d-8d2d-7b2fc5b2a9e5.png)
+![Screenshot 2022-06-26 12 29 40 AM](https://user-images.githubusercontent.com/68448315/175793524-d6b1eb72-9aa8-47e6-9466-b3b7baa8685e.png)
 
 ### Game Page
 
-![Screenshot 2022-06-24 10 07 26 AM](https://user-images.githubusercontent.com/68448315/175503427-ecf0f355-eae8-4870-a613-674a53c1139b.png)
+![Screenshot 2022-06-26 12 29 45 AM](https://user-images.githubusercontent.com/68448315/175793531-a7c61d8b-24d0-4cde-a84a-a618a01d00f7.png)
 
 ## Want to start playing right away?
 
