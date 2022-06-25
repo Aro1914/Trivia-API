@@ -1,4 +1,4 @@
-# Trivia App
+# Trivia API
 
 ## Welcome to Udacitrivia
 
