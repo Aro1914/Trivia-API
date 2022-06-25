@@ -97,7 +97,7 @@ Once you have your server running, you can go start up your frontend to work wit
 
 `GET '/api/v0.1.0/categories'`
 
-Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category. If the request argument `quiz` is set to `true`, then only categories that have questions assigned to them are returned, else by default all categories are returned.
+Fetches a dictionary of categories in which the keys are the IDs and the value is the corresponding string of the category. If the request argument `quiz` is set to `true`, then only categories that have questions assigned to them are returned, else by default all categories are returned.
 
 - Request Arguments: quiz- type boolean, default false
 - Returns: An object with the following properties:
@@ -270,7 +270,7 @@ Example Response:
 
 `POST '/api/v0.1.0/categories/<int:category_id>/questions'`
 
-Fetches a list of dictionaries with the questions information with a category id that matches what the one being requested for, a count of all the questions returned, and the current category.
+Fetches a list of dictionaries with the questions information with a category ID that matches what the one being requested for, a count of all the questions returned, and the current category.
 
 - Request Arguments: page- type int
 - Request Body Properties: search_term- type string
@@ -301,7 +301,7 @@ Example Response:
 
 `POST '/api/v0.1.0/quizzes'`
 
-Fetches a single question for the quiz on the condition that the question's id does not already exist among the previous questions' ids coming from the client.
+Fetches a single question for the quiz on the condition that the question's ID does not already exist among the previous questions' IDs coming from the client.
 
 - Request Arguments: None
 - Request Body Properties:
