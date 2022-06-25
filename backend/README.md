@@ -91,7 +91,7 @@ $>> flask run
 
 Once you have your server running, you can go start up your frontend to work with the backend server.
 
-## Api EndPoints
+## API EndPoints
 
 ### Get Categories
 
@@ -100,7 +100,7 @@ Once you have your server running, you can go start up your frontend to work wit
 Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category. If the request argument `quiz` is set to `true`, then only categories that have questions assigned to them are returned, else by default all categories are returned.
 
 - Request Arguments: quiz- type boolean, default false
-- Returns: An object with two keys:
+- Returns: An object with the following properties:
   - `success`: A boolean representing the status of the result of the request.
   - `categories`: An object of `id: category_string` key: value pairs
 

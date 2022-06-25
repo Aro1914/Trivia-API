@@ -203,8 +203,7 @@
     width: 100% !important;
   }
   .categoriesList ul > li {
-    width: calc(50% - 10px);
-    gap: 5px;
+    width: 100%;
   }
 
   .deleteContainer {
