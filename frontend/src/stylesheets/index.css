@@ -3,7 +3,7 @@
   --subTheme: rgb(196, 3, 255);
 }
 
-* {
+*:not(body) {
   box-sizing: border-box;
   transition: all .5s;
 }
